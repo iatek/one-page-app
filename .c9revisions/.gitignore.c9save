@@ -1,2 +1,3 @@
 {"ts":1353947123980,"silentsave":true,"restoring":false,"patch":[[]],"length":0}
 {"contributors":[],"silentsave":false,"ts":1353947190440,"patch":[[{"diffs":[[1,"node-modules"]],"start1":0,"start2":0,"length1":0,"length2":12}]],"length":12,"saved":false}
+{"ts":1353947210879,"patch":[[{"diffs":[[0,"node"],[-1,"-"],[1,"_"],[0,"modu"]],"start1":0,"start2":0,"length1":9,"length2":9}]],"length":12,"saved":false}
