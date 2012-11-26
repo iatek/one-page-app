@@ -6,10 +6,7 @@
     "express": ">=2.5.x",
     "ejs": ">=0.6.x",
     "request": ">=2.11.4",
-    "dirty": ">=0.9.6",
-    "jquery": ">=1.6.x",
-    "jsdom": ">=0.2.0",
-    "mailgun": ">=0.4.2"
+    "dirty": ">=0.9.6"
   },
   "engines": {
     "node": "0.6.x"
