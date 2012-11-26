@@ -1,4 +1,5 @@
-var app = require('./app').init(4000),
+var port = process.env.PORT || 4000,
+    app = require('./app').init(port),
 	dirty = require('dirty');
 	
 var locals = {
