@@ -1,11 +1,10 @@
 var port = process.env.PORT || 4000,
     app = require('./app').init(port),
-	dirty = require('dirty');
+    dirty = require('dirty');
 	
 var locals = {
-	title: 		 'Mobile Test',
-	description: 'Test of Lighweight Mobile Data Store',
-	author: 	 ''
+	author:'in1'
+	// add other vars here
 };
 
 var userDb = dirty('user.db');
@@ -14,14 +13,18 @@ app.get('/', function(req,res){
     locals.date = new Date().toLocaleDateString();
 	
 	var appDb = dirty('app.db'),
+		sectionsDb;
+	
+	appDb.on('load', function() {
 		sectionsDb = dirty('sections.db');
-	
-	sectionsDb.forEach(function(key, val) {
-		console.log('Found key: %s, val: %j', key, val);
-	});
-	
-	sectionsDb.on('load', function() {
-		res.render('index', {locals:locals,sections:sectionsDb});
+		sectionsDb.on('load', function() {
+			/*
+			sectionsDb.forEach(function(key, val) {
+				console.log('Found key: %s, val: %j', key, val);
+			});
+			*/
+			res.render('index', {locals:locals,sections:sectionsDb,app:appDb.get('app'),page:appDb.get('page')});
+		});
 	});
 	
     
@@ -30,39 +33,63 @@ app.get('/', function(req,res){
 app.get('/admin', function(req,res){
     locals.date = new Date().toLocaleDateString();
 	
-	var appDb = dirty('app.db'),
-		sectionsDb = dirty('sections.db'),
-		templatesDb = dirty('templates.db');
-	
-	appDb.on('load', function() {
-		sectionsDb.forEach(function(key, val) {
-			console.log('Found key: %s, val: %j', key, val);
+	//if (req.session.loggedIn) {
+		var appDb = dirty('app.db');
+		appDb.on('load', function() {
+			sectionsDb = dirty('sections.db');
+			sectionsDb.on('load', function() {
+				/*
+				sectionsDb.forEach(function(key, val) {
+					console.log('Found key: %s, val: %j', key, val);
+				});
+				*/
+				templatesDb = dirty('templates.db');
+				templatesDb.on('load', function() {
+					res.render('admin', {locals:locals,sections:sectionsDb,templates:templatesDb,app:appDb.get('app'),page:appDb.get('page')});
+				});
+			});
 		});
-	
-		res.render('admin', {locals:locals,sections:sectionsDb,templates:templatesDb,app:appDb});
-	});
+		
+	//}
+	//else {
+	//	res.render('login');
+	//}
 });
 
 app.post('/admin/app', function(req,res){
-	var appDb = dirty('app.db');
+	appDb = dirty('app.db');
 	console.log('save app.');
 	
 	appDb.on('load', function() {
 		console.log('save app----');
-		appDb.set('app',{title:req.body["title"],description:req.body["description"],keywords:req.body["keywords"]}, function() {
+		//appDb.set('app',{title:req.body["title"],description:req.body["description"],keywords:req.body["keywords"]}, function() {
+		appDb.set('app',req.body, function() {
 			console.log('Added mobile %s.', appDb.get('app'));
 		});
 	});
 	
 	appDb.on('drain', function() {
 		console.log('app is saved on disk.');
-		res.render('admin', {locals:locals,app:appDb,sections:[],msg:"Saved"});
+		
+		sectionsDb = dirty('sections.db');
+		sectionsDb.on('load', function() {
+			/*
+			sectionsDb.forEach(function(key, val) {
+				console.log('Found key: %s, val: %j', key, val);
+			});
+			*/
+			templatesDb = dirty('templates.db');
+			templatesDb.on('load', function() {
+				res.render('admin', {locals:locals,sections:sectionsDb,templates:templatesDb,app:appDb.get('app'),page:appDb.get('page'),msg:"App Settings Saved."});
+			});
+		});
+	
+		//res.redirect("/admin");
 	});
 });
 
-
 app.post('/admin/page', function(req,res){
-	var appDb = dirty('app.db');
+	appDb = dirty('app.db');
 	console.log('save page.');
 	
 	appDb.on('load', function() {
@@ -73,8 +100,24 @@ app.post('/admin/page', function(req,res){
 	});
 	
 	appDb.on('drain', function() {
-		console.log('app is saved on disk.');
-		res.render('admin', {locals:locals,app:appDb,sections:[],msg:"Saved"});
+		console.log('app page is saved on disk.');
+		res.redirect("/admin");
+	});
+});
+
+app.post('/admin/sections', function(req,res){
+	var appDb = dirty('app.db'),
+		sectionsDb = dirty('sections.db'),
+		key = req.body["section"],
+		vals = req.body;
+	
+	console.log("create section");
+	
+	sectionsDb.on('load', function() {
+		sectionsDb.set(key,vals, function() {
+			console.log('Added content', sectionsDb.get(key));
+		});
+		res.redirect("/admin");
 	});
 });
 
@@ -86,7 +129,7 @@ app.post('/admin/sections/:k', function(req,res){
 		//content = req.body["content"];
 		vals = req.body;
 	
-	console.log("saving");
+	console.log("saving section:"+key);
 	
 	if (typeof key!="undefined") {
 		sectionsDb.on('load', function() {
@@ -127,8 +170,8 @@ app.post('/admin/sections/all', function(req,res){
 		sections = req.body["section"],
 		contents = req.body["content"];
 	
-	console.log(sections.toString());
-	console.log(contents.toString());
+	//console.log(sections.toString());
+	//console.log(contents.toString());
 	
 	var i=0;
 	sections.forEach(function() {
@@ -163,15 +206,19 @@ app.get('/admin/templates/:k', function(req,res){
 	locals.date = new Date().toLocaleDateString();
 
 	var appDb = dirty('app.db'),
-		sectionsDb = dirty('sections.db'),
-		templatesDb = dirty('templates.db'),
 		key = req.params["k"];
 		
 	locals.id = key;
 	
 	if (typeof key!="undefined") {
-		templatesDb.on('load', function() {
-			res.render("admin",{locals:locals,templates:templatesDb,sections:sectionsDb,app:appDb,template:templatesDb.get(key)});
+		appDb.on('load', function() {
+			sectionsDb = dirty('sections.db');
+			sectionsDb.on('load', function() {
+				templatesDb = dirty('templates.db');
+				templatesDb.on('load', function() {
+					res.render("admin",{locals:locals,templates:templatesDb,sections:sectionsDb,app:appDb.get('app'),page:appDb.get('page'),template:templatesDb.get(key)});
+				});
+			});
 		});
 	}
 	else {

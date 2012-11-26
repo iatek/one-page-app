@@ -1,0 +1,54 @@
+<style>
+
+</style>
+
+<script>
+$(document).ready(function() {
+
+	
+	
+});
+</script>
+
+<div class="container">
+
+	<% if (typeof msg!="undefined") {%><div class="alert alert-info"><%=msg%></div><%}%>
+	
+	<div id="login" class="span10">
+	<h1>Login</h1>
+	<form class="form-horizontal span5" action="/login" method="POST">
+		<div class="control-group">
+			<label class="control-label" for="inputName">Name</label>
+			<div class="controls">
+				<input type="text" id="inputName" name="name" placeholder="Name" value="<%=app.name%>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputTitle">Password</label>
+			<div class="controls">
+				<input type="text" class="input-xlarge" id="inputTitle" name="title" placeholder="Title" value="<%=app.title%>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputKeywords">Keywords</label>
+			<div class="controls">
+				<input type="text" class="input-xlarge" id="inputKeywords" name="keywords" placeholder="keyword1,keyword2,keyword3" value="<%=app.keywords%>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputDescription">Description</label>
+			<div class="controls">
+				<textarea id="inputDescription" name="description" class="input-xxlarge" rows="3" placeholder="Description goes here"><%=app.description%></textarea>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<button class="btn btn-huge btn-info">Save</button>
+			</div>
+		</div>
+	</form>
+	</div>
+	
+</div>
+
+<div>&nbsp;</div>

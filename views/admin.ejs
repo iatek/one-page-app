@@ -6,16 +6,11 @@
 $(document).ready(function() {
 
 	// make server JSON accessible to client
-	var templates=<%-JSON.stringify(templates._docs)%>;
+	var templatesList=<%-JSON.stringify(templates._docs)%>;
 	
-	$('#scrollTop').click(function(){
-		$('html, body').animate({scrollTop:0}, 'slow');
-		return false;
-	});
-	
-	$('#selectTemplate').change(function(){
-		console.log('selected..'+$(this).val());
-		window.location.href='/admin/templates/'+$(this).val()+'#templates';
+	$('.select-template').click(function(){
+		console.log('selected..'+$(this).text());
+		window.location.href='/admin/templates/'+$(this).text()+'#templates';
 		return false;
 	});
 	
@@ -23,7 +18,7 @@ $(document).ready(function() {
 		var t = $(this).text();
 		if (confirm('Are you sure you want to overwrite the content?')) {
 			var prevTextarea = $(this).parents('.controls').find('textarea');
-			prevTextarea.val(templates[t].template);
+			prevTextarea.val(templatesList[t].template);
 		}
 		return false;
 	});
@@ -56,35 +51,59 @@ $(document).ready(function() {
 		return false;
 	});
 	
+	$('.btnDel').click(function(){
+		var id = $(this).parents("form:first").attr("action");
+		console.log(id);
+		if (confirm('Are you sure?')){
+			$.ajax({
+			  type:'delete', 
+			  url:id,
+			  success: function(msg){ 
+				alert("success");    
+			  },
+			  error: function(msg){
+				alert("error:" + msg);
+			  }
+			});   
+		}
+		return false;
+	})
+	
 });
 </script>
 
 <div class="container">
 
-	<% if (typeof msg!="undefined") {%><div class="alert alert-info"><%=msg%></div><%}%>
+	<% if (typeof msg!="undefined") {%><div class="span10 alert alert-info"><%=msg%></div><%}%>
 
-	<div class="subnav">
-    <ul class="nav nav-pills" id="admin-menu">
-      <li><a href="#">Admin</a></li>
-      <li><a href="#pages">Pages</a></li>
-      <li><a href="#sections">Sections</a></li>
-      <li><a href="#templates">Templates</a></li>
-    </ul>
-  </div>
+	<div class="subnav span10">
+		<ul class="nav nav-pills" id="admin-menu">
+		  <li><a href="#">Admin</a></li>
+		  <li><a href="#pages">Pages</a></li>
+		  <li><a href="#sections">Sections</a></li>
+		  <li><a href="#templates">Templates</a></li>
+		</ul>
+	</div>
 	
 	<div id="app" class="span10">
 	<h1>App Settings</h1>
-	<form class="form-horizontal span5" action="/app" method="POST">
+	<form class="form-horizontal span5" action="/admin/app" method="POST">
+		<div class="control-group">
+			<label class="control-label" for="inputName">Name</label>
+			<div class="controls">
+				<input type="text" id="inputName" name="name" placeholder="Name" value="<%=app.name%>">
+			</div>
+		</div>
 		<div class="control-group">
 			<label class="control-label" for="inputTitle">Title</label>
 			<div class="controls">
-				<input type="text" class="input-xlarge" id="inputTitle" name="title" placeholder="Title">
+				<input type="text" class="input-xlarge" id="inputTitle" name="title" placeholder="Title" value="<%=app.title%>">
 			</div>
 		</div>
 		<div class="control-group">
 			<label class="control-label" for="inputKeywords">Keywords</label>
 			<div class="controls">
-				<input type="text" class="input-xlarge" id="inputKeywords" name="keywords" placeholder="keyword1,keyword2,keyword3">
+				<input type="text" class="input-xlarge" id="inputKeywords" name="keywords" placeholder="keyword1,keyword2,keyword3" value="<%=app.keywords%>">
 			</div>
 		</div>
 		<div class="control-group">
@@ -101,25 +120,25 @@ $(document).ready(function() {
 	</form>
 	</div>
 	
-	<div id="pages" class="span12">
+	<div id="pages" class="span10">
 	<h1>Page</h1>
 	<form class="form-horizontal span5" action="/admin/page" method="POST">
 		<div class="control-group">
 			<label class="control-label" for="inputHeading">Heading</label>
 			<div class="controls">
-				<input type="text" class="input-xlarge" id="inputHeading" name="heading" placeholder="Page Heading">
+				<input type="text" class="input-xlarge" id="inputHeading" name="heading" value="<%=page.heading%>" placeholder="Page Heading">
 			</div>
 		</div>
 		<div class="control-group">
 			<label class="control-label" for="inputPermalink">Permalink</label>
 			<div class="controls">
-				<input type="text" class="input-xlarge" id="inputPermalink" name="permalink" placeholder="page-link-title">
+				<input type="text" class="input-xlarge" id="inputPermalink" name="permalink" value="<%=page.permalink%>" placeholder="page-link-title">
 			</div>
 		</div>
 		<div class="control-group">
 			<label class="control-label" for="inputScript">Script</label>
 			<div class="controls">
-				<textarea id="inputScript" name="script" class="input-xxlarge" rows="3" placeholder="Document load scripts go here"></textarea>
+				<textarea id="inputScript" name="script" class="input-xxlarge" rows="3" placeholder="Document load scripts go here"><%=page.script%></textarea>
 			</div>
 		</div>
 		<div class="control-group">
@@ -130,19 +149,36 @@ $(document).ready(function() {
 	</form>
 	</div>
 	
-	<div id="sections" class="span12">
-	<h1>Sections</h1>
+	<div id="sections" class="span10">
+	<h1>Sections <span class="badge"><%=sections.size()%></span></h1>
+	
+	<ul class="nav nav-pills" id="admin-menu">
+		<% sections.forEach( function( k,v ){ %>
+		<% if (v){ %>
+		<li><a href="#form<%=k%>"><%=k%></a></li>
+		<% }}) %>
+	</ul>
+	
 	<% sections.forEach( function( k,v ){ %>
-	<form class="form-horizontal" action="/admin/sections/<%=k%>" method="POST">
+	<% if (v){ %>
+	<hr class="span11"/>
+	<form class="form-horizontal span5" action="/admin/sections/<%=k%>" method="POST" id="form<%=k%>">
 		<div class="control-group">
 			<label class="control-label" for="inputSection">Section</label>
 			<div class="controls">
-				<input type="text" class="input-xlarge" id="inputSection" name="section" placeholder="Enter section name" value="<%= k %>"> &nbsp; Menu text<input type="text" class="input-medium" id="inputMenuText" name="menuText" placeholder="Menu text" value="<%- v.menuText %>">
+				<input type="text" class="input-xlarge" id="inputSection" name="section" placeholder="Enter section name" value="<%= k %>">
 			</div>
 		</div>
-		<div class="btn-group span4 pull-right">
-			<div>
-			Bool <input <% if (v.boolean) {%>checked<% } %> type="checkbox" class="input-medium" id="inputBoolean" name="boolean" value="1">
+		<div class="control-group">
+			<label class="control-label" for="inputEnabled">Enabled </label>
+			<div class="controls">
+				<input <% if (v.enabled) {%>checked<% } %> type="checkbox" class="input-medium" id="inputEnabled" name="enabled" value="1">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputMenuText">Menu Text</label>
+			<div class="controls">
+				<input type="text" class="input-medium" id="inputMenuText" name="menuText" placeholder="Menu text" value="<%- v.menuText %>">
 			</div>
 		</div>
 		<div class="control-group">
@@ -176,14 +212,20 @@ $(document).ready(function() {
 		</div>
 		<div class="control-group">
 			<div class="controls">
-				<button type="button" class="btn btn-xlarge btn-danger" onclick="return confirm('Are you sure?');">Delete</button> <button type="submit" class="btn btn-xlarge btn-info">Save</button>
+				<button type="button" class="btn btn-xlarge btn-danger btnDel">Delete</button> <button type="submit" class="btn btn-xlarge btn-info">Save</button>
 			</div>
 		</div>
 	</form>
+	<% } %>
 	<% }) %>
-	<form class="form-horizontal" action="/admin/sections" method="POST">
+	<hr class="span11"/>
+	<form class="form-horizontal span5" action="/admin/sections" method="POST">
+		<input type="hidden" id="inputEnabled" name="enabled" value="1">
+		<input type="hidden" id="inputMenuText" name="menuText"
+		<input type="hidden" id="inputCssClass" name="cssClass">
+		<input type="hidden" id="inputHeading" name="heading">
 		<div class="control-group">
-			<label class="control-label" for="inputSection">Section</label>
+			<label class="control-label" for="inputSection">New Section</label>
 			<div class="controls">
 				<input type="text" class="input-xlarge" id="inputSection" name="section" placeholder="Enter section name">
 			</div>
@@ -213,25 +255,29 @@ $(document).ready(function() {
 	</form>
 	</div>
 	
-	<div id="templates" class="span12 fill">
+	<div id="templates" class="span10">
 	<h1>Templates</h1>
-	
-	<form class="form-horizontal">
+	<form class="form-horizontal span5">
 		<div class="control-group">
-			<label class="control-label" for="inputSelectTemplate"></label>
+		<label class="control-label"></label>
 			<div class="controls">
-			<select id="selectTemplate" name="selectTemplate">
-				<option>Select a template to edit</option>
-				<% templates.forEach( function( k,v ){ %>
-				<option <% if (typeof template!="undefined" && locals.id===k) {%>selected<%}%> ><%= k %></option>
-				<% }) %>
-			</select>
+				<div class="btn-group">
+					<button class="btn btn-small">Select Template to Edit</button>
+					<button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
+					<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<% templates.forEach( function( k,v ){ %>
+							<li <% if (typeof template!="undefined" && locals.id===k) {%>class='active'<%}%>><a href='#' class='select-template'><%= k %></a></li>
+						<% }) %>
+					</ul>
+				</div>
 			</div>
 		</div>
 	</form>
 	
 	<% if (typeof template!="undefined") {%>
-	<form class="form-horizontal" action="/admin/templates/<%=locals.id%>" method="POST">
+	<form class="form-horizontal span5" action="/admin/templates/<%=locals.id%>" method="POST">
 		<div class="control-group">
 			<label class="control-label" for="inputName">Name</label>
 			<div class="controls">
@@ -256,9 +302,3 @@ $(document).ready(function() {
 </div>
 
 <div>&nbsp;</div>
-
-<footer class="footer">
-<p class="pull-right"><a href="#" id="scrollTop">scroll to top</a></p>
-</footer>
-	  
-

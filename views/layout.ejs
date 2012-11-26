@@ -2,17 +2,71 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title><%= title %></title>
+    <title><%= app.title %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="<%= description %>">
+    <meta name="description" content="<%= app.description %>">
+	<meta name="keywords" content="<%= app.keywords %>">
     <meta name="author" content="<%= author %>">
 
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
+		body {
+			padding-top: 60px;
+			padding-bottom: 40px;
+		}
+		.footer {
+			position:fixed;
+			z-index:10;
+			bottom:5px;
+			right:10px;
+		}
+		#menuSticky {
+			z-index: 5;
+			position: fixed;
+			top: 99px;
+			right: 16px;
+			margin-top: -40px;
+			padding: 7px;
+			padding-top: 12px;
+		}
+		#menuSticky ul {
+			list-style: none;
+			margin:0;
+		}
+		#menuSticky li {
+			position: relative;
+			background: none repeat scroll 0 0 #999999;
+			border-radius: 15px 15px 15px 15px;
+			box-shadow: 0 1px 3px rgba(1, 1, 1, 0.25), 0 -1px 0 rgba(0, 0, 0, 0.1) inset;
+			cursor: pointer;
+			height: 9px;
+			margin: 10px 10px 0px 0px;
+			width: 18px;
+			vertical-align:bottom;
+		}
+		#menuSticky li.active {
+			background-color: #ffffff;
+			background-image: -moz-linear-gradient(center top , #FFFFFF, #EEEEEE);
+			background-repeat: repeat-x;
+		}
+		#menuSticky li:hover {
+			background: none repeat scroll 0 0 #EEEEEE;
+		}
+		#menuSticky a {
+			outline: 0;
+			*display: block;
+			*width: 20px;
+			*height: 20px;
+			*text-indent: -9999px;
+			*background: transparent 20px 0px no-repeat;
+			vertical-align:top;
+			margin: 0px 0px 0px 25px;
+			position: relative;
+			top:-5px;
+		}
+
+
+
     </style>
     <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
@@ -29,11 +83,6 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="bootstrap/js/jquery-1.7.1.min.js"><\/script>')</script>
 	<script src="/bootstrap/js/bootstrap.min.js"></script>
-
-	<style>
-		#leftSticky {padding:4px;border:1px solid #ddd;}
-		/*#leftSticky a {background-image:url('http://placehold.it/32x32/575757/fff');display:block;height:32px;width:32px;margin:2px;}*/
-	</style>
 	
 	<script>
 	function unspace(str) {
@@ -44,6 +93,67 @@
 	}
 	
 	$(document).ready(function() {
+	
+		$('#scrollTop').click(function(){
+			$('html, body').animate({scrollTop:0}, 'slow');
+			return false;
+		});
+		
+		redrawDotNav();
+		
+		$(window).bind('scroll',function(e){
+			//parallaxScroll();
+			redrawDotNav();
+		});
+
+		function redrawDotNav(){
+
+			var topNavHeight = 61;
+			
+			$('#menuSticky li a').removeClass('active').parent('li').removeClass('active');
+			
+			var numDivs = $('section.sec').length;
+			$('section.sec').each(function(i,item){
+				var ele = $(item), nextTop;
+
+				if ($('section.sec'+(i+2)).offset() !== null) {
+					nextTop = $('section.sec'+(i+2)).offset().top;
+				}
+				else {
+					nextTop = $(document).height();
+				}
+				
+				console.log("sec"+(i+1));
+				
+				if (ele.offset() !== null) {
+					thisTop = ele.offset().top - ((nextTop - ele.offset().top) / numDivs);
+				}
+				else {
+					thisTop = 0;
+				}
+				
+				var docTop = $(document).scrollTop()+topNavHeight;
+				
+				if(docTop >= thisTop && (docTop < nextTop)){
+					$('#menuSticky a.sec'+(i+1)).parent('li').addClass('active');
+				}
+			});
+			
+		}
+		
+		function spy(){
+			var id = $(this).attr("href").replace("/",""),
+				posi,
+				ele,
+				padding = parseInt($('body').css('padding-top'));
+
+			ele = $(id);
+			posi = ($(ele).offset()||0).top - padding;
+			
+			$('html, body').animate({scrollTop:posi}, 'slow');
+			
+			return false;
+		}
 		
 		$('#section-menu li:first').addClass("active");
 		$('#section-menu li a,#admin-menu li a').click(function(){
@@ -53,7 +163,7 @@
 				padding = parseInt($('body').css('padding-top'));
 
 			ele = $(id);
-			posi = $(ele).offset().top - padding;
+			posi = ($(ele).offset()||0).top - padding;
 			
 			$('html, body').animate({scrollTop:posi}, 'slow');
 			
@@ -65,6 +175,8 @@
 			$(this).parent().addClass('active');
 		});
 
+		<%=page.script||"App"%>
+		
 	});
 	</script>
   </head>
@@ -79,29 +191,28 @@
 				 <span class="icon-bar"></span>
 				 <span class="icon-bar"></span>
 				</a>
-				<a class="brand" href="/">App</a>
+				<a class="brand" href="/"><%=app.name||"App"%></a>
 				<div class="nav-collapse" id="main-menu">
 					<ul class="nav" id="section-menu">
 						<% if (typeof sections!="undefined") { %>
 						<% sections.forEach( function( key,val ){ %>
+						<% if (val && val.enabled=="1") { %>
 						<li><a href="/#<%=key%>"><%=val.menuText||key%></a></li>
+						<% } %>
 						<% })} %>
 					</ul>
-					<form class="navbar-search pull-right" action="">
-						<input type="text" class="search-query span2" placeholder="Search">
-					</form>
+					
 					<ul class="nav pull-right">
-					<li><a href="#">About</a></li>
 					<li class="dropdown">
-					  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+					  <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <b class="caret"></b></a>
 					  <ul class="dropdown-menu">
-						<li><a href="#">Action</a></li>
+						<li><a href="http://www.in1.com">In1</a></li>
 						<li><a href="/admin">Admin</a></li>
 						<li class="divider"></li>
-						<li><a href="#">Separated link</a></li>
+						<li><a href="#About">About</a></li>
 					  </ul>
 					</li>
-					<li class="divider-vertical"></li>
+					
 					</ul>
 
 				</div>
@@ -109,36 +220,28 @@
 		</div>
 	</div>
   
-	<div data-spy="affix" data-offset-top="220" id="leftSticky" class="pull-right">
-		<a href='#'>.</a>
-		<a href='#'>.</a>
-		<a href='#'>.</a>
-		<a href='#'>.</a>
-		<a href='#'>.</a>
-		<a href='#'>.</a>
-		<a href='#'>.</a>
-		<a href='#'>.</a>
+	<div data-spy="affix" data-offset-top="220" id="menuSticky" class="pull-right">
+		<ul>
+		<% if (typeof sections!="undefined") { %>
+		<% i=1 %>
+		<% sections.forEach( function( key,val ){ %>
+		<% if (val && val.enabled=="1") { %>
+		<li><a href="/#<%=key%>" class="sec<%=i%>"><%=i%></a></li>
+		<% i++ %>
+		<% } %>
+		<% })} %>
+		</ul>
 	</div>
   
     <%- body %>
+	
+	<footer class="footer">
+		<p class="pull-right"><a href="#" id="scrollTop">scroll to top</a></p>
+	</footer>
 
 	<script src="/bootstrap/js/bootstrap-carousel.js"></script>
 	<script src="/bootstrap/js/bootstrap-transition.js"></script>
 	
-	<!--
-
-    <script src="bootstrap/js/bootstrap-alert.js"></script>
-    <script src="bootstrap/js/bootstrap-modal.js"></script>
-    <script src="bootstrap/js/bootstrap-dropdown.js"></script>
-    <script src="bootstrap/js/bootstrap-scrollspy.js"></script>
-    <script src="bootstrap/js/bootstrap-tab.js"></script>
-    <script src="bootstrap/js/bootstrap-tooltip.js"></script>
-    <script src="bootstrap/js/bootstrap-popover.js"></script>
-    <script src="bootstrap/js/bootstrap-button.js"></script>
-    <script src="bootstrap/js/bootstrap-collapse.js"></script>
-    <script src="bootstrap/js/bootstrap-typeahead.js"></script>
-    -->
-
     <!--
     <script>
       var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview'],['_trackPageLoadTime']];
