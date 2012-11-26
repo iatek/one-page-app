@@ -1,0 +1,264 @@
+<style>
+
+</style>
+
+<script>
+$(document).ready(function() {
+
+	// make server JSON accessible to client
+	var templates=<%-JSON.stringify(templates._docs)%>;
+	
+	$('#scrollTop').click(function(){
+		$('html, body').animate({scrollTop:0}, 'slow');
+		return false;
+	});
+	
+	$('#selectTemplate').change(function(){
+		console.log('selected..'+$(this).val());
+		window.location.href='/admin/templates/'+$(this).val()+'#templates';
+		return false;
+	});
+	
+	$('.load-template').click(function(){
+		var t = $(this).text();
+		if (confirm('Are you sure you want to overwrite the content?')) {
+			var prevTextarea = $(this).parents('.controls').find('textarea');
+			prevTextarea.val(templates[t].template);
+		}
+		return false;
+	});
+	
+	$('#deleteTemplate').click(function(){
+		var id = $(this).parents('.controls').find('form').attr("action");
+		if (confirm('Are you sure you want to delete this template?')) {
+			$.ajax({
+			  type:'delete', 
+			  url:id,
+			  success: function(msg){ 
+				alert("success");    
+			  },
+			  error: function(msg){
+				alert("error:" + msg);
+			  }
+			});     
+		}
+		return false;
+	});
+	
+	$('button.update').click(function(){
+		console.log('update');
+		var f = $(this).parents("form:first");
+		f.submit(function(e){
+			//e.preventDefault(); //Prevent the normal submission action
+			console.log("sdfsdfs");
+		});
+		
+		return false;
+	});
+	
+});
+</script>
+
+<div class="container">
+
+	<% if (typeof msg!="undefined") {%><div class="alert alert-info"><%=msg%></div><%}%>
+
+	<div class="subnav">
+    <ul class="nav nav-pills" id="admin-menu">
+      <li><a href="#">Admin</a></li>
+      <li><a href="#pages">Pages</a></li>
+      <li><a href="#sections">Sections</a></li>
+      <li><a href="#templates">Templates</a></li>
+    </ul>
+  </div>
+	
+	<div id="app" class="span10">
+	<h1>App Settings</h1>
+	<form class="form-horizontal span5" action="/app" method="POST">
+		<div class="control-group">
+			<label class="control-label" for="inputTitle">Title</label>
+			<div class="controls">
+				<input type="text" class="input-xlarge" id="inputTitle" name="title" placeholder="Title">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputKeywords">Keywords</label>
+			<div class="controls">
+				<input type="text" class="input-xlarge" id="inputKeywords" name="keywords" placeholder="keyword1,keyword2,keyword3">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputDescription">Description</label>
+			<div class="controls">
+				<textarea id="inputDescription" name="description" class="input-xxlarge" rows="3" placeholder="Description goes here"><%=app.description%></textarea>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<button class="btn btn-huge btn-info">Save</button>
+			</div>
+		</div>
+	</form>
+	</div>
+	
+	<div id="pages" class="span12">
+	<h1>Page</h1>
+	<form class="form-horizontal span5" action="/admin/page" method="POST">
+		<div class="control-group">
+			<label class="control-label" for="inputHeading">Heading</label>
+			<div class="controls">
+				<input type="text" class="input-xlarge" id="inputHeading" name="heading" placeholder="Page Heading">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputPermalink">Permalink</label>
+			<div class="controls">
+				<input type="text" class="input-xlarge" id="inputPermalink" name="permalink" placeholder="page-link-title">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputScript">Script</label>
+			<div class="controls">
+				<textarea id="inputScript" name="script" class="input-xxlarge" rows="3" placeholder="Document load scripts go here"></textarea>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<button class="btn btn-huge btn-info">Save</button>
+			</div>
+		</div>
+	</form>
+	</div>
+	
+	<div id="sections" class="span12">
+	<h1>Sections</h1>
+	<% sections.forEach( function( k,v ){ %>
+	<form class="form-horizontal" action="/admin/sections/<%=k%>" method="POST">
+		<div class="control-group">
+			<label class="control-label" for="inputSection">Section</label>
+			<div class="controls">
+				<input type="text" class="input-xlarge" id="inputSection" name="section" placeholder="Enter section name" value="<%= k %>"> &nbsp; Menu text<input type="text" class="input-medium" id="inputMenuText" name="menuText" placeholder="Menu text" value="<%- v.menuText %>">
+			</div>
+		</div>
+		<div class="btn-group span4 pull-right">
+			<div>
+			Bool <input <% if (v.boolean) {%>checked<% } %> type="checkbox" class="input-medium" id="inputBoolean" name="boolean" value="1">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputCss">Css</label>
+			<div class="controls">
+				<input type="text" class="input-medium" id="inputCssClass" name="cssClass" placeholder="Enter css class names" value="<%- v.cssClass %>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputHeading">Heading</label>
+			<div class="controls">
+				<input type="text" class="input-medium" id="inputHeading" name="heading" placeholder="Heading" value="<%- v.heading %>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputContent">Content</label>
+			<div class="controls">
+				<textarea id="inputContent" name="content" class="input-xxlarge span9" rows="8" placeholder="Content goes here"><%= v.content %></textarea>
+				<div class="btn-group">
+					<button class="btn btn-small">Load from Template</button>
+					<button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
+					<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<% templates.forEach( function( k,v ){ %>
+							<li><a href='#' class='load-template'><%= k %></a></li>
+						<% }) %>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<button type="button" class="btn btn-xlarge btn-danger" onclick="return confirm('Are you sure?');">Delete</button> <button type="submit" class="btn btn-xlarge btn-info">Save</button>
+			</div>
+		</div>
+	</form>
+	<% }) %>
+	<form class="form-horizontal" action="/admin/sections" method="POST">
+		<div class="control-group">
+			<label class="control-label" for="inputSection">Section</label>
+			<div class="controls">
+				<input type="text" class="input-xlarge" id="inputSection" name="section" placeholder="Enter section name">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputContent">Content</label>
+			<div class="controls">
+				<textarea id="inputContent" name="content" class="input-xxlarge span9" rows="7" placeholder="Content goes here"></textarea>
+				<div class="btn-group">
+					<button class="btn btn-small">Load from Template</button>
+					<button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
+					<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<% templates.forEach( function( k,v ){ %>
+							<li><a href='#' class='load-template'><%= k %></a></li>
+						<% }) %>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<button class="btn btn-xlarge btn-info">Create</button>
+			</div>
+		</div>
+	</form>
+	</div>
+	
+	<div id="templates" class="span12 fill">
+	<h1>Templates</h1>
+	
+	<form class="form-horizontal">
+		<div class="control-group">
+			<label class="control-label" for="inputSelectTemplate"></label>
+			<div class="controls">
+			<select id="selectTemplate" name="selectTemplate">
+				<option>Select a template to edit</option>
+				<% templates.forEach( function( k,v ){ %>
+				<option <% if (typeof template!="undefined" && locals.id===k) {%>selected<%}%> ><%= k %></option>
+				<% }) %>
+			</select>
+			</div>
+		</div>
+	</form>
+	
+	<% if (typeof template!="undefined") {%>
+	<form class="form-horizontal" action="/admin/templates/<%=locals.id%>" method="POST">
+		<div class="control-group">
+			<label class="control-label" for="inputName">Name</label>
+			<div class="controls">
+				<input type="text" class="input-xlarge" id="inputName" name="name" placeholder="Enter template name" value="<%= template.name %>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="inputTemplate">Template</label>
+			<div class="controls">
+				<textarea id="inputTemplate" name="template" class="input-xxlarge span9" rows="12" placeholder="Template goes here"><%= template.template %></textarea>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<button type="button" class="btn btn-xlarge btn-danger" id="deleteTemplate">Delete</button> <button type="submit" class="btn btn-xlarge btn-info">Save</button>
+			</div>
+		</div>
+	</form>
+	<% } %>
+	
+	</div>
+</div>
+
+<div>&nbsp;</div>
+
+<footer class="footer">
+<p class="pull-right"><a href="#" id="scrollTop">scroll to top</a></p>
+</footer>
+	  
+

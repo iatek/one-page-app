@@ -1,0 +1,75 @@
+<style>
+
+</style>
+
+<script>
+$(document).ready(function() {
+	
+	$('#selectTemplate').change(function(){
+		console.log('selected..'+$(this).val());
+		window.location.href='/templates/'+$(this).val();
+		//return false;
+	});
+	
+	$('button.update').click(function(){
+		console.log('update');
+		var f = $(this).parents("form:first");
+		f.submit(function(e){
+			//e.preventDefault(); //Prevent the normal submission action
+			console.log("sdfsdfs");
+		});
+		
+		return false;
+	});
+	
+});
+</script>
+
+<div class="container">
+
+	<% if (typeof msg!="undefined") {%><div class="alert alert-info"><%=msg%></div><%}%>
+	
+	<div class="span12">
+	<h1>Templates</h1>
+	
+	<form class="form-horizontal">
+		<div class="control-group">
+			<label class="control-label" for="inputSelectTemplate">Name</label>
+			<div class="controls">
+			<select id="selectTemplate" name="selectTemplate">
+				<option>Select a template to edit</option>
+				<% templates.forEach( function( k,v ){ %>
+				<option <% if (typeof template!="undefined" && locals.id===k) {%>selected<%}%> ><%= k %></option>
+				<% }) %>
+			</select>
+			</div>
+		</div>
+	</form>
+	
+	<% if (typeof template!="undefined") {%>
+	<form class="form-horizontal" action="/templates/<%=locals.id%>" method="POST">
+		<div class="control-group">
+			<label class="control-label" for="inputTemplate">Template</label>
+			<div class="controls">
+				<textarea id="inputTemplate" name="template" class="input-xxlarge" rows="8" placeholder="Template goes here"><%= template.template %></textarea>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<button type="button" class="btn btn-xlarge btn-danger" onclick="return confirm('Are you sure?');">Delete</button> <button type="submit" class="btn btn-xlarge btn-info">Save</button>
+			</div>
+		</div>
+	</form>
+	<% } %>
+
+	</div>
+	
+</div>
+
+<br><br><br><br>
+
+<footer class="footer">
+<p class="pull-right"></p>
+</footer>
+	  
+
