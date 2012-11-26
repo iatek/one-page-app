@@ -44,7 +44,7 @@ app.get('/admin', function(req,res){
 });
 
 app.post('/admin/app', function(req,res){
-	appDb = dirty('app.db');
+	var appDb = dirty('app.db');
 	console.log('save app.');
 	
 	appDb.on('load', function() {
@@ -62,12 +62,12 @@ app.post('/admin/app', function(req,res){
 
 
 app.post('/admin/page', function(req,res){
-	appDb = dirty('app.db');
+	var appDb = dirty('app.db');
 	console.log('save page.');
 	
 	appDb.on('load', function() {
 		console.log('save page----');
-		appDb.set('page',req.body}, function() {
+		appDb.set('page',req.body, function() {
 			console.log('Saved page %s.', appDb.get('app'));
 		});
 	});
