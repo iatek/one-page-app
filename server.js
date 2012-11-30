@@ -45,8 +45,15 @@ app.get('/login', function(req,res){
 app.post('/login', function(req,res){
 
 	console.log("logging in");
-	req.session.loggedIn=true;
-	res.redirect('/admin');
+    
+    if (req.body.password=="foo") {
+        req.session.loggedIn=true;
+	    res.redirect('/admin');
+    }
+    else {
+        
+         res.redirect('/');
+    }
 
 });
 
