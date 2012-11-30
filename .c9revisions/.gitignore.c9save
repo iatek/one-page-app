@@ -3,3 +3,4 @@
 {"ts":1353947210879,"patch":[[{"diffs":[[0,"node"],[-1,"-"],[1,"_"],[0,"modu"]],"start1":0,"start2":0,"length1":9,"length2":9}]],"length":12,"saved":false}
 {"contributors":[],"silentsave":false,"ts":1353980912888,"patch":[[{"diffs":[[0,"_modules"],[1,"\n*.db"]],"start1":4,"start2":4,"length1":8,"length2":13}]],"length":17,"saved":false}
 {"contributors":[],"silentsave":false,"ts":1354014072534,"patch":[[{"diffs":[[1,"/"],[0,"node_mod"]],"start1":0,"start2":0,"length1":8,"length2":9}]],"length":18,"saved":false}
+{"contributors":[],"silentsave":false,"ts":1354288625020,"patch":[[{"diffs":[[-1,"/node_modules\n"],[0,"*.db"]],"start1":0,"start2":0,"length1":18,"length2":4}]],"length":4,"saved":false}
