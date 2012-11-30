@@ -3,3 +3,4 @@
 {"ts":1354287200877,"patch":[[{"diffs":[[0,"le: true"],[1,",\n    layout:'layout'"],[0,"\n\t// add"]],"start1":148,"start2":148,"length1":16,"length2":37}]],"length":8156,"saved":false}
 {"ts":1354287807874,"patch":[[{"diffs":[[0,"ile:"],[-1," true"],[1,"'layout'"],[0,",\n    "],[1,"//"],[0,"layo"]],"start1":147,"start2":147,"length1":19,"length2":24}]],"length":8161,"saved":false}
 {"ts":1354287814056,"patch":[[{"diffs":[[0,":'layout"],[1,".ejs"],[0,"',\n    /"]],"start1":150,"start2":150,"length1":16,"length2":20}]],"length":8165,"saved":false}
+{"ts":1354287896307,"patch":[[{"diffs":[[0,"in1'"],[-1,",\n    _layoutFile:'layout.ejs',"],[0,"\n   "]],"start1":129,"start2":129,"length1":39,"length2":8}]],"length":8134,"saved":false}

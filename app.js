@@ -5,7 +5,7 @@ var express = require('express'),
 exports.init = function(port) {
 
 	app.locals({
-		_layoutFile: true
+		_layoutFile:'layout.ejs'
 	})
 	
     app.configure(function(){
