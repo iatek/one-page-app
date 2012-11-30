@@ -4,7 +4,8 @@ var port = process.env.PORT || 4000,
 	
 var locals = {
 	author:'in1',
-    _layoutFile: true
+    _layoutFile: true,
+    layout:'layout'
 	// add other vars here
 };
 
