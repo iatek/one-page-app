@@ -9,15 +9,15 @@ exports.init = function(port) {
 	})
 	
     app.configure(function(){
-    	app.set('views', __dirname + '/views');
-    	app.set('view engine', 'ejs');
-    	app.use(express.bodyParser());
-    	app.use(express.methodOverride());
-    	app.use(express.static(__dirname + '/static'));
+        app.set('views', __dirname + '/views');
+        app.set('view engine', 'ejs');
+        app.use(express.bodyParser());
+        app.use(express.methodOverride());
+        app.use(express.static(__dirname + '/static'));
 		app.use(express.cookieParser());
 		app.use(express.cookieSession({cookie:{path:'/',httpOnly:true,maxAge:null},secret:'skeletor'}));
-    	app.use(app.router);
-    	//app.enable("jsonp callback");
+        app.use(app.router);
+        //app.enable("jsonp callback");
     });
 
 	app.engine('ejs', engine);

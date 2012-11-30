@@ -3,7 +3,8 @@ var port = process.env.PORT || 4000,
 	dirty = require('dirty');
 	
 var locals = {
-	author:'in1'
+	author:'in1',
+    _layoutFile: true
 	// add other vars here
 };
 
