@@ -1,6 +1,6 @@
 var port = process.env.PORT || 4000,
     app = require('./app').init(port),
-    dirty = require('dirty');
+	dirty = require('dirty');
 	
 var locals = {
 	author:'in1'
@@ -23,17 +23,47 @@ app.get('/', function(req,res){
 				console.log('Found key: %s, val: %j', key, val);
 			});
 			*/
-			res.render('index', {locals:locals,sections:sectionsDb,app:appDb.get('app'),page:appDb.get('page')});
+			res.render('index.ejs', {locals:locals,sections:sectionsDb,app:appDb.get('app'),page:appDb.get('page')});
 		});
 	});
+});
+
+app.get('/login', function(req,res){
+	var appDb = dirty('app.db'),
+		sectionsDb;
 	
-    
+	appDb.on('load', function() {
+		sectionsDb = dirty('sections.db');
+		sectionsDb.on('load', function() {
+		res.render('login', {locals:locals,sections:sectionsDb,app:appDb.get('app'),page:appDb.get('page')});
+		});
+	});
+
+});
+
+app.post('/login', function(req,res){
+
+	console.log("logging in");
+	req.session.loggedIn=true;
+	res.redirect('/admin');
+
+});
+
+app.get('/logout', function(req,res){
+
+	console.log("logging out");
+	delete req.session.loggedIn;
+	res.redirect('/');
+
 });
 
 app.get('/admin', function(req,res){
     locals.date = new Date().toLocaleDateString();
 	
-	//if (req.session.loggedIn) {
+	//console.log("cookies:"+JSON.stringify(req.cookies));
+	//console.log("session:"+JSON.stringify(req.session));
+	
+	if (req.session.loggedIn) {
 		var appDb = dirty('app.db');
 		appDb.on('load', function() {
 			sectionsDb = dirty('sections.db');
@@ -45,15 +75,16 @@ app.get('/admin', function(req,res){
 				*/
 				templatesDb = dirty('templates.db');
 				templatesDb.on('load', function() {
-					res.render('admin', {locals:locals,sections:sectionsDb,templates:templatesDb,app:appDb.get('app'),page:appDb.get('page')});
+					res.render('admin', {locals:locals,sections:sectionsDb,templates:templatesDb,app:appDb.get('app'),page:appDb.get('page'),msg:req.param["msg"]});
 				});
 			});
 		});
 		
-	//}
-	//else {
-	//	res.render('login');
-	//}
+	}
+	else {
+		//res.render('login');
+		res.redirect('/login');
+	}
 });
 
 app.post('/admin/app', function(req,res){
@@ -106,8 +137,7 @@ app.post('/admin/page', function(req,res){
 });
 
 app.post('/admin/sections', function(req,res){
-	var appDb = dirty('app.db'),
-		sectionsDb = dirty('sections.db'),
+	var sectionsDb = dirty('sections.db'),
 		key = req.body["section"],
 		vals = req.body;
 	
@@ -115,9 +145,18 @@ app.post('/admin/sections', function(req,res){
 	
 	sectionsDb.on('load', function() {
 		sectionsDb.set(key,vals, function() {
-			console.log('Added content', sectionsDb.get(key));
+			console.log('Added content %s', sectionsDb.get(key));
+			res.redirect("/admin#form"+key);
+			/*
+			appDb = dirty('app.db');
+			appDb.on('load', function() {
+				templatesDb = dirty('templates.db');
+				templatesDb.on('load', function() {
+					res.render('admin', {locals:locals,sections:sectionsDb,templates:templatesDb,app:appDb.get('app'),page:appDb.get('page'),msg:"Section '"+ key + "' created."});
+				});
+			});
+			*/
 		});
-		res.redirect("/admin");
 	});
 });
 
@@ -136,12 +175,12 @@ app.post('/admin/sections/:k', function(req,res){
 			sectionsDb.set(key,vals, function() {
 				console.log('Added content', sectionsDb.get(key));
 			});
-			//res.render('admin', {locals:locals,app:appDb,sections:sectionsDb,msg:"Saved Section: "+key});
-			res.redirect("/admin");
+			//res.redirect("/admin");
+			res.send('Section saved.');
 		});
 	}
 	else {
-		res.render('error');
+		res.send('Section not saved.');
 	}
 	
 });
@@ -156,12 +195,22 @@ app.del('/admin/sections/:k', function(req,res){
 		sectionsDb.rm(key, function() {
 			console.log('Deleted section');
 		});
+		
+		sectionsDb.on('drain', function() {
+			/*
+			appDb.on('load', function() {
+				templatesDb = dirty('templates.db');
+				templatesDb.on('load', function() {
+					res.render('admin', {locals:locals,sections:sectionsDb,templates:templatesDb,app:appDb.get('app'),page:appDb.get('page'),msg:"Section '"+ key + "' deleted."});
+				});
+			});
+			*/
+			res.send('Section deleted.');
+		});
 	}
-	
-	sectionsDb.on('drain', function() {
-		res.redirect('/admin');
-	});
-	
+	else {
+		res.send('Section delete failed.')
+	}
 })
 
 app.post('/admin/sections/all', function(req,res){
@@ -240,7 +289,8 @@ app.post('/admin/templates/:k', function(req,res){
 			templatesDb.set(key,vals, function() {
 				console.log('Template saved', templatesDb.get(key));
 			});
-			res.redirect("/admin");
+			//res.redirect("/admin");
+			res.send('Thank you.');
 		});
 	}
 	else {
@@ -264,8 +314,17 @@ app.del('/admin/templates/:k', function(req,res){
 	templatesDb.on('drain', function() {
 		res.redirect('/admin');
 	});
-	
 })
+
+app.post('/contact', function(req,res){
+	appDb = dirty('app.db');
+	console.log('contact form submit.');
+	
+	appDb.on('load', function() {
+		console.log('Form submitted.');
+		res.send('Thank you.');
+	});
+});
 
 /* The 404 Route (ALWAYS Keep this as the last route) */
 app.get('/*', function(req, res){

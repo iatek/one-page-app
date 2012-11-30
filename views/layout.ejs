@@ -5,10 +5,16 @@
     <title><%= app.title %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<%= app.description %>">
-	<meta name="keywords" content="<%= app.keywords %>">
-    <meta name="author" content="<%= author %>">
-    <meta name="google-site-verification" content="aaSJQREIPu2uh6Bnu4ZZEX0IXxli4YdMsRJzK_r__ac" />
-    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="keywords" content="<%= app.keywords %>">
+	
+	<script src="/codemirror/lib/codemirror.js"></script>
+	<link rel="stylesheet" href="/codemirror/lib/codemirror.css">
+	<script src="/codemirror/mode/css/css.js"></script>
+	<script src="/codemirror/mode/javascript/javascript.js"></script>
+	<script src="/codemirror/mode/xml/xml.js"></script>
+	<script src="/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+    
+	<link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
 		body {
 			padding-top: 60px;
@@ -22,10 +28,9 @@
 		}
 		#menuSticky {
 			z-index: 5;
-			position: fixed;
-			top: 99px;
+			*position: fixed;
+			*top: 99px;
 			right: 16px;
-			margin-top: -40px;
 			padding: 7px;
 			padding-top: 12px;
 		}
@@ -35,9 +40,9 @@
 		}
 		#menuSticky li {
 			position: relative;
-			background: none repeat scroll 0 0 #999999;
+			background: none repeat scroll 0 0 #cccccc;
+			border:1px solid #aaaaaa;
 			border-radius: 15px 15px 15px 15px;
-			box-shadow: 0 1px 3px rgba(1, 1, 1, 0.25), 0 -1px 0 rgba(0, 0, 0, 0.1) inset;
 			cursor: pointer;
 			height: 9px;
 			margin: 10px 10px 0px 0px;
@@ -54,19 +59,11 @@
 		}
 		#menuSticky a {
 			outline: 0;
-			*display: block;
-			*width: 20px;
-			*height: 20px;
-			*text-indent: -9999px;
-			*background: transparent 20px 0px no-repeat;
 			vertical-align:top;
 			margin: 0px 0px 0px 25px;
 			position: relative;
 			top:-5px;
 		}
-
-
-
     </style>
     <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
@@ -79,11 +76,24 @@
     <link rel="apple-touch-icon" sizes="72x72" href="/bootstrap/img/apple-touch-icon-72x72.png">
     <link rel="apple-touch-icon" sizes="114x114" href="/bootstrap/img/apple-touch-icon-114x114.png">
 	
-	<!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
+	<!-- load jquery from google CDN, with a protocol relative URL; otherwise local if offline -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="bootstrap/js/jquery-1.7.1.min.js"><\/script>')</script>
 	<script src="/bootstrap/js/bootstrap.min.js"></script>
-	
+	<script type="text/javascript" src="http://plugins.in1.com/scripts/socialist.js"></script>
+	<script type="text/javascript">
+    
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-36671748-1']);
+      _gaq.push(['_trackPageview']);
+    
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    
+    </script>
 	<script>
 	function unspace(str) {
 		if (str==null)
@@ -99,6 +109,11 @@
 			return false;
 		});
 		
+		
+		$('[title]').tooltip();
+		
+		/* dot nav */
+		
 		redrawDotNav();
 		
 		$(window).bind('scroll',function(e){
@@ -106,6 +121,12 @@
 			redrawDotNav();
 		});
 
+		
+		$('#menuSticky li').click(function(){
+			$(this).find('a').trigger('click');
+			return false;
+		});
+		
 		function redrawDotNav(){
 
 			var topNavHeight = 61;
@@ -123,7 +144,7 @@
 					nextTop = $(document).height();
 				}
 				
-				console.log("sec"+(i+1));
+				//console.log("sec"+(i+1));
 				
 				if (ele.offset() !== null) {
 					thisTop = ele.offset().top - ((nextTop - ele.offset().top) / numDivs);
@@ -140,20 +161,7 @@
 			});
 			
 		}
-		
-		function spy(){
-			var id = $(this).attr("href").replace("/",""),
-				posi,
-				ele,
-				padding = parseInt($('body').css('padding-top'));
-
-			ele = $(id);
-			posi = ($(ele).offset()||0).top - padding;
-			
-			$('html, body').animate({scrollTop:posi}, 'slow');
-			
-			return false;
-		}
+		/* end dot nav */
 		
 		$('#section-menu li:first').addClass("active");
 		$('#section-menu li a, #admin-menu li a, .smooth').click(function(){
@@ -178,6 +186,29 @@
 		<%=page.script||"App"%>
 		
 	});
+	
+	/* alert handling */
+	
+	function showAlert(msg){
+		if (typeof msg=="undefined")
+			return;
+			
+		console.log("alerting:"+msg);
+		
+		$('#msgBox').html(msg+'<a class="close" href="#">&times;</a>').fadeIn().delay(3500).fadeOut('slow');
+		
+		return false;
+	}
+	
+	<% if (typeof msg!="undefined") { %>
+	var msg = "<%=msg%>";
+	if (msg!="") {
+		showAlert(msg);
+	}
+	<%}%>
+	
+	/* end alert handling */
+	
 	</script>
   </head>
 
@@ -197,7 +228,7 @@
 						<% if (typeof sections!="undefined") { %>
 						<% sections.forEach( function( key,val ){ %>
 						<% if (val && val.enabled=="1") { %>
-						<li><a href="/#<%=key%>"><%=val.menuText||key%></a></li>
+						<li id="menu<%=key%>"><a href="/#<%=key%>" title="<%=key%>"><%=val.menuText||key%></a></li>
 						<% } %>
 						<% })} %>
 					</ul>
@@ -207,6 +238,7 @@
 					  <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <b class="caret"></b></a>
 					  <ul class="dropdown-menu">
 						<li><a href="http://www.in1.com">In1</a></li>
+						<li><a href="/admin">Admin</a></li>
 						<li class="divider"></li>
 						<li><a href="#About">About</a></li>
 					  </ul>
@@ -219,23 +251,14 @@
 		</div>
 	</div>
   
-	<div data-spy="affix" data-offset-top="220" id="menuSticky" class="pull-right">
-		<ul>
-		<% if (typeof sections!="undefined") { %>
-		<% i=1 %>
-		<% sections.forEach( function( key,val ){ %>
-		<% if (val && val.enabled=="1") { %>
-		<li><a href="/#<%=key%>" class="sec<%=i%>"><%=i%></a></li>
-		<% i++ %>
-		<% } %>
-		<% })} %>
-		</ul>
+	<div class="container-fluid">
+	<div class="span3 alert alert-info" id="msgBox" style="top:10%;right:3%;position:fixed;z-index:100;display:none;"></div>
 	</div>
   
     <%- body %>
 	
 	<footer class="footer">
-		<a href='http://www.in1.com'>in1.com</a> | <p class="pull-right"><a href="#" id="scrollTop">scroll to top</a></p>
+		<p class="pull-right"><a href="#" id="scrollTop">scroll to top</a></p>
 	</footer>
 
 	<script src="/bootstrap/js/bootstrap-carousel.js"></script>

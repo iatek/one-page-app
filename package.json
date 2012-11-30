@@ -3,8 +3,9 @@
   "version": "0.0.1",
   "author": "Iatek",
   "dependencies": {
-    "express": ">=2.5.x",
+    "express": ">=3.x",
     "ejs": ">=0.6.x",
+    "ejs-locals": ">=1.x",
     "dirty": ">=0.9.6"
   },
   "engines": {
