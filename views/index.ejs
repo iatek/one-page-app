@@ -35,7 +35,7 @@ $(document).ready(function() {
     <% sections.forEach( function( key,val ){ %>
     <% if (val && val.enabled=="1"){ %>
     <li id="<%=key%>" class="">
-        <a></a>
+        <a href="<%=key>" class="sec<%=i%>"></a>
     </li>
     <% i++; %>
     <% } %>
