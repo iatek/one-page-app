@@ -28,3 +28,17 @@ $(document).ready(function() {
 <% }); %>
 
 <br><br><br><br>
+
+<div id="menuSticky">
+    <ul>
+    <% i=1 %>
+    <% sections.forEach( function( key,val ){ %>
+    <% if (val && val.enabled=="1"){ %>
+    <li id="<%=key%>" class="">
+        <a></a>
+    </li>
+    <% i++; %>
+    <% } %>
+    <% }); %>
+    </ul>
+</div>
