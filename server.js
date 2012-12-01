@@ -4,7 +4,6 @@ var port = process.env.PORT || 4000,
 	
 var locals = {
 	author:'in1'
-    //layout:'layout'
 	// add other vars here
 };
 
@@ -45,15 +44,8 @@ app.get('/login', function(req,res){
 app.post('/login', function(req,res){
 
 	console.log("logging in");
-    
-    if (req.body.password=="foo") {
-        req.session.loggedIn=true;
-	    res.redirect('/admin');
-    }
-    else {
-        
-         res.redirect('/');
-    }
+	req.session.loggedIn=true;
+	res.redirect('/admin');
 
 });
 
