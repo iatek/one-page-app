@@ -23,20 +23,19 @@ exports.init = function(port) {
 	app.engine('ejs', engine);
 	
     app.configure('development', function(){
-	   app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+        app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
         // app.use(express.logger({ format: ':method :url' }));
     });
 
     app.configure('production', function(){
-	   app.use(express.errorHandler()); 
+        app.use(express.errorHandler()); 
     });
-
 
     app.use(function(err, req, res, next){
-	   res.render('500.ejs', { locals: { error: err },status: 500 });	
+        res.render('500.ejs', { locals: { error: err },status: 500 });	
     });
 	
-    server = app.listen(port);
+    var server = app.listen(port);
 
     console.log("Listening on port %d in %s mode", server.address().port, app.settings.env);
 
