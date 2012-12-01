@@ -28,8 +28,8 @@
 		}
 		#menuSticky {
 			z-index: 5;
-			position: fixed;
-			top: 10%;
+			*position: fixed;
+			*top: 99px;
 			right: 16px;
 			padding: 7px;
 			padding-top: 12px;
@@ -81,19 +81,6 @@
     <script>window.jQuery || document.write('<script src="bootstrap/js/jquery-1.7.1.min.js"><\/script>')</script>
 	<script src="/bootstrap/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="http://plugins.in1.com/scripts/socialist.js"></script>
-	<script type="text/javascript">
-    
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-36671748-1']);
-      _gaq.push(['_trackPageview']);
-    
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-    
-    </script>
 	<script>
 	function unspace(str) {
 		if (str==null)
@@ -109,8 +96,20 @@
 			return false;
 		});
 		
-		
-		$('[title]').tooltip();
+		/*
+		$('#menuSticky li').click(function(e){
+			//console.log($(this).find('a'));
+			cl = $(this).attr("class");
+			console.log(cl);
+			var top = $('section.'+cl).offset().top;
+			//console.log(top);
+			$('html, body').animate({scrollTop:top}, 'slow');
+			
+			return false;
+		});
+		*/
+				
+		//$('[title]').tooltip();
 		
 		/* dot nav */
 		
@@ -120,16 +119,12 @@
 			//parallaxScroll();
 			redrawDotNav();
 		});
-
-		
-		$('#menuSticky li').click(function(){
-			$(this).find('a').trigger('click');
-			return false;
-		});
 		
 		function redrawDotNav(){
 
 			var topNavHeight = 61;
+			
+			console.log("asdasdasdasd------------------");
 			
 			$('#menuSticky li a').removeClass('active').parent('li').removeClass('active');
 			
@@ -164,7 +159,7 @@
 		/* end dot nav */
 		
 		$('#section-menu li:first').addClass("active");
-		$('#section-menu li a, #admin-menu li a, .smooth').click(function(){
+		$('#section-menu li a, #admin-menu li a, .smooth, #menuSticky li').click(function(){
 			var id = $(this).attr("href").replace("/",""),
 				posi,
 				ele,
@@ -182,7 +177,7 @@
 			$('#main-menu li').removeClass('active');
 			$(this).parent().addClass('active');
 		});
-
+		
 		<%=page.script||"App"%>
 		
 	});
@@ -264,14 +259,17 @@
 	<script src="/bootstrap/js/bootstrap-carousel.js"></script>
 	<script src="/bootstrap/js/bootstrap-transition.js"></script>
 	
-    <!--
-    <script>
-      var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview'],['_trackPageLoadTime']];
-      (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-      g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-      s.parentNode.insertBefore(g,s)}(document,'script'));
+	<script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-36671748-1']);
+      _gaq.push(['_trackPageview']);
+    
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
     </script>
-    -->
 
     <!--[if lt IE 7 ]>
       <script defer src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>

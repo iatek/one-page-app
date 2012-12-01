@@ -1,5 +1,5 @@
 <style>
-	#myCarousel {}
+    #myCarousel {}
 </style>
 
 <script>
@@ -10,7 +10,25 @@ $(document).ready(function() {
 		$('html, body').animate({scrollTop:0}, 'slow');
 		return false;
 	});
-	
+		
+	$('#btnContact').click(function(){
+
+		var form = $('#contactForm');
+		
+		$.ajax({
+		  type:'post',
+		  data:form.serialize(),
+		  url:'/contact',
+		  success: function(msg){ 
+			showAlert("Success: " + msg);    
+		  },
+			error: function(msg){
+			showAlert("Error: " + msg);
+		  }
+		});   
+		
+		return false;
+	})
 });
 </script>
 
@@ -27,18 +45,17 @@ $(document).ready(function() {
 <% } %>
 <% }); %>
 
-<br><br><br><br>
-
-<div id="menuSticky">
-    <ul>
-    <% i=1 %>
-    <% sections.forEach( function( key,val ){ %>
-    <% if (val && val.enabled=="1"){ %>
-    <li id="<%=key%>" class="">
-        <a href="<%=key%>" class="sec<%=i%>"></a>
-    </li>
-    <% i++; %>
-    <% } %>
-    <% }); %>
-    </ul>
+<div data-spy="affix" data-offset-top="150" id="menuSticky" class="pull-right">
+	<ul>
+	<% if (typeof sections!="undefined") { %>
+	<% i=1 %>
+	<% sections.forEach( function( key,val ){ %>
+	<% if (val && val.enabled=="1") { %>
+	<li title="<%=key%>" href="/#<%=key%>"><a href="/#<%=key%>" class="sec<%=i%> smooth"></a></li>
+	<% i++ %>
+	<% } %>
+	<% })} %>
+	</ul>
 </div>
+
+<br><br><br><br>
