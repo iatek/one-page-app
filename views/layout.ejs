@@ -5,7 +5,7 @@
     <title><%= app.title %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<%= app.description %>">
-    <meta name="keywords" content="<%= app.keywords %>">
+	<meta name="keywords" content="<%= app.keywords %>">
 	
 	<script src="/codemirror/lib/codemirror.js"></script>
 	<link rel="stylesheet" href="/codemirror/lib/codemirror.css">
@@ -95,24 +95,10 @@
 			$('html, body').animate({scrollTop:0}, 'slow');
 			return false;
 		});
-		
-		/*
-		$('#menuSticky li').click(function(e){
-			//console.log($(this).find('a'));
-			cl = $(this).attr("class");
-			console.log(cl);
-			var top = $('section.'+cl).offset().top;
-			//console.log(top);
-			$('html, body').animate({scrollTop:top}, 'slow');
-			
-			return false;
-		});
-		*/
 				
-		//$('[title]').tooltip();
+		$('[title]').tooltip();
 		
 		/* dot nav */
-		
 		redrawDotNav();
 		
 		$(window).bind('scroll',function(e){
@@ -123,8 +109,6 @@
 		function redrawDotNav(){
 
 			var topNavHeight = 61;
-			
-			console.log("asdasdasdasd------------------");
 			
 			$('#menuSticky li a').removeClass('active').parent('li').removeClass('active');
 			
@@ -178,7 +162,7 @@
 			$(this).parent().addClass('active');
 		});
 		
-		<%=page.script||"App"%>
+		<%-page.script||"App"%>
 		
 	});
 	

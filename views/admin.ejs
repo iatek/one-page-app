@@ -1,12 +1,21 @@
-<style>
-
+<style type="text/css">
+	.CodeMirror {
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		width:100%;
+		font-family: Monaco, Menlo,"Andale Mono","lucida console","Courier New",monospace !important;
+		font-size: 85%;
+	}
 </style>
+
 
 <script>
 $(document).ready(function() {
 
 	// make server JSON accessible to client
 	var templatesList=<%-JSON.stringify(templates._docs)%>;
+	
+	//$('.CodeMirror').addClass("span8");
 	
 	$('.select-template').click(function(){
 		console.log('selected..'+$(this).text());
@@ -16,10 +25,19 @@ $(document).ready(function() {
 	
 	$('.load-template').click(function(){
 		var t = $(this).text();
-		if (confirm('Are you sure you want to overwrite the content?')) {
-			var prevTextarea = $(this).parents('.controls').find('textarea');
-			prevTextarea.val(templatesList[t].template);
+		var prevTextarea = $(this).parents('.controls').find('textarea');
+		
+		if (prevTextarea.val().length > 0) {
+			if (confirm('Are you sure you want to overwrite the content?')) {
+				eval(prevTextarea.attr("id")+".setValue(templatesList[t].template)");
+			}
 		}
+		else {
+			prevTextarea.val(templatesList[t].template);
+			eval(prevTextarea.attr("id")+".setValue(templatesList[t].template)");
+		}
+		
+		$(this).parents('.btn-group').removeClass('open'); // hide dropdown
 		return false;
 	});
 	
@@ -27,8 +45,8 @@ $(document).ready(function() {
 		var id = $(this).parents('.controls').find('form').attr("action");
 		if (confirm('Are you sure you want to delete this template?')) {
 			$.ajax({
-			  type:'delete', 
-			  url:id,
+			  type: 'delete', 
+			  url: id,
 			  success: function(msg){ 
 				alert("success");    
 			  },
@@ -40,26 +58,20 @@ $(document).ready(function() {
 		return false;
 	});
 	
-	$('button.update').click(function(){
-		console.log('update');
-		var f = $(this).parents("form:first");
-		f.submit(function(e){
-			//e.preventDefault(); //Prevent the normal submission action
-			console.log("sdfsdfs");
-		});
-		
-		return false;
-	});
-	
 	$('.btnDel').click(function(){
-		var id = $(this).parents("form:first").attr("action");
-		console.log(id);
+		var f=$(this).parents("form:first"),
+			action=f.attr("action"),
+			id=f.find("#inputSection").val();
+		
+		//console.log(id);
 		if (confirm('Are you sure?')){
 			$.ajax({
-			  type:'delete', 
-			  url:id,
+			  type: 'delete', 
+			  url: action,
 			  success: function(msg){ 
-				alert("success");    
+				f.remove();
+				$('#menu'+id).remove();
+				showAlert("Success: "+msg);
 			  },
 			  error: function(msg){
 				alert("error:" + msg);
@@ -69,13 +81,34 @@ $(document).ready(function() {
 		return false;
 	})
 	
+	$('.btnSave').click(function(){
+		var form = $(this).parents("form:first");
+		var formAction = $(this).parents("form:first").attr("action");
+		//console.log(formAction);
+		
+		//copy the CodeMirror contents to textarea
+		var prevTextarea = $(this).parents('form').find('textarea');
+		eval(prevTextarea.attr("id")+".save()");
+		
+		$.ajax({
+			type: 'post',
+			data: form.serialize(),
+			url: formAction,
+			success:function(msg){ 
+				showAlert("Success: " + msg);    
+			},
+			error: function(msg){
+				alert("Error: " + msg);
+			}
+		}); 
+		return false;
+	})
+	
 });
 </script>
 
 <div class="container">
-
-	<% if (typeof msg!="undefined") {%><div class="span10 alert alert-info"><%=msg%></div><%}%>
-
+	
 	<div class="subnav span10">
 		<ul class="nav nav-pills" id="admin-menu">
 		  <li><a href="#">Admin</a></li>
@@ -87,7 +120,7 @@ $(document).ready(function() {
 	
 	<div id="app" class="span10">
 	<h1>App Settings</h1>
-	<form class="form-horizontal span5" action="/admin/app" method="POST">
+	<form class="form-horizontal" action="/admin/app" method="POST">
 		<div class="control-group">
 			<label class="control-label" for="inputName">Name</label>
 			<div class="controls">
@@ -122,7 +155,7 @@ $(document).ready(function() {
 	
 	<div id="pages" class="span10">
 	<h1>Page</h1>
-	<form class="form-horizontal span5" action="/admin/page" method="POST">
+	<form class="form-horizontal" action="/admin/page" method="POST">
 		<div class="control-group">
 			<label class="control-label" for="inputHeading">Heading</label>
 			<div class="controls">
@@ -150,19 +183,24 @@ $(document).ready(function() {
 	</div>
 	
 	<div id="sections" class="span10">
-	<h1>Sections <span class="badge"><%=sections.size()%></span></h1>
+	<h1>Sections</h1>
 	
 	<ul class="nav nav-pills" id="admin-menu">
+		<% i=0 %>
 		<% sections.forEach( function( k,v ){ %>
 		<% if (v){ %>
+		<% i++ %>
 		<li><a href="#form<%=k%>"><%=k%></a></li>
 		<% }}) %>
+		<li><a href="#formNew" title="Create a new section"><b>+</b></a></li>
 	</ul>
 	
+	<% i=0 %>
 	<% sections.forEach( function( k,v ){ %>
 	<% if (v){ %>
+	<section id="<%=k%>"></section>
+	<form class="form-horizontal" action="/admin/sections/<%=k%>" method="POST" id="form<%=k%>">
 	<hr class="span11"/>
-	<form class="form-horizontal span5" action="/admin/sections/<%=k%>" method="POST" id="form<%=k%>">
 		<div class="control-group">
 			<label class="control-label" for="inputSection">Section</label>
 			<div class="controls">
@@ -194,9 +232,12 @@ $(document).ready(function() {
 			</div>
 		</div>
 		<div class="control-group">
-			<label class="control-label" for="inputContent">Content</label>
+			<label class="control-label" for="inputContent" title="Text, HTML, Javascript or jQuery code can be used here.">Content</label>
 			<div class="controls">
-				<textarea id="inputContent" name="content" class="input-xxlarge span9" rows="8" placeholder="Content goes here"><%= v.content %></textarea>
+				<textarea id="inputContent<%=i%>" name="content" class="input-xxlarge span9" rows="7" placeholder="Content goes here"><%= v.content %></textarea>
+				<script>
+				var inputContent<%=i%> = CodeMirror.fromTextArea(document.getElementById("inputContent<%=i%>"),{mode: "text/html", tabMode: "indent"});
+				</script>
 				<div class="btn-group">
 					<button class="btn btn-small">Load from Template</button>
 					<button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
@@ -212,14 +253,15 @@ $(document).ready(function() {
 		</div>
 		<div class="control-group">
 			<div class="controls">
-				<button type="button" class="btn btn-xlarge btn-danger btnDel">Delete</button> <button type="submit" class="btn btn-xlarge btn-info">Save</button>
+				<button type="button" class="btn btn-xlarge btn-danger btnDel">Delete</button> <button type="button" class="btn btn-xlarge btn-info btnSave">Save</button>
 			</div>
 		</div>
 	</form>
+	<% i++ %>
 	<% } %>
 	<% }) %>
+	<form class="form-horizontal" action="/admin/sections" method="POST" id="formNew">
 	<hr class="span11"/>
-	<form class="form-horizontal span5" action="/admin/sections" method="POST">
 		<input type="hidden" id="inputEnabled" name="enabled" value="1">
 		<input type="hidden" id="inputMenuText" name="menuText"
 		<input type="hidden" id="inputCssClass" name="cssClass">
@@ -233,7 +275,10 @@ $(document).ready(function() {
 		<div class="control-group">
 			<label class="control-label" for="inputContent">Content</label>
 			<div class="controls">
-				<textarea id="inputContent" name="content" class="input-xxlarge span9" rows="7" placeholder="Content goes here"></textarea>
+				<textarea id="inputContentNew" name="content" class="input-xxlarge span9" rows="7" placeholder="Content goes here"></textarea>
+				<script>
+				var inputContentNew = CodeMirror.fromTextArea(document.getElementById("inputContentNew"), {mode: "text/html", tabMode: "indent"});
+				</script>
 				<div class="btn-group">
 					<button class="btn btn-small">Load from Template</button>
 					<button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
@@ -249,7 +294,7 @@ $(document).ready(function() {
 		</div>
 		<div class="control-group">
 			<div class="controls">
-				<button class="btn btn-xlarge btn-info">Create</button>
+				<button type="submit" class="btn btn-xlarge btn-info">Create</button>
 			</div>
 		</div>
 	</form>
@@ -257,7 +302,7 @@ $(document).ready(function() {
 	
 	<div id="templates" class="span10">
 	<h1>Templates</h1>
-	<form class="form-horizontal span5">
+	<form class="form-horizontal">
 		<div class="control-group">
 		<label class="control-label"></label>
 			<div class="controls">
@@ -277,7 +322,7 @@ $(document).ready(function() {
 	</form>
 	
 	<% if (typeof template!="undefined") {%>
-	<form class="form-horizontal span5" action="/admin/templates/<%=locals.id%>" method="POST">
+	<form class="form-horizontal" action="/admin/templates/<%=locals.id%>" method="POST">
 		<div class="control-group">
 			<label class="control-label" for="inputName">Name</label>
 			<div class="controls">
@@ -288,11 +333,14 @@ $(document).ready(function() {
 			<label class="control-label" for="inputTemplate">Template</label>
 			<div class="controls">
 				<textarea id="inputTemplate" name="template" class="input-xxlarge span9" rows="12" placeholder="Template goes here"><%= template.template %></textarea>
+				<script>
+				var inputTemplate = CodeMirror.fromTextArea(document.getElementById("inputTemplate"), {mode: "text/html", tabMode: "indent"});
+				</script>
 			</div>
 		</div>
 		<div class="control-group">
 			<div class="controls">
-				<button type="button" class="btn btn-xlarge btn-danger" id="deleteTemplate">Delete</button> <button type="submit" class="btn btn-xlarge btn-info">Save</button>
+				<button type="button" class="btn btn-xlarge btn-danger" id="deleteTemplate">Delete</button> <button type="button" class="btn btn-xlarge btn-info btnSave">Save</button>
 			</div>
 		</div>
 	</form>
